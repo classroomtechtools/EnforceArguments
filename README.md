@@ -97,7 +97,7 @@ You can also use this method with class methods:
 ```js
 const I = Enforce.create('Help constructor', {id: '!number'});
 class Help {
-  constructor({id=I.req, ...extra}) {
+  constructor({id=I.req, ...extra}={}) {
     I.extra(extra);
   }
 }
