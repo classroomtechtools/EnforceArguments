@@ -2,12 +2,14 @@
 
 A V8 GAS library which enables the ability for the developer to guarantee that functions receive arguments that match the expected types -- including instances of classes.
 
+![](enforcearguments.gif?raw=true "EnforcedArguments")
+
 This library lets you
 - Declare required arguments and throws `TypeError` in their absence
 - Declare expected types, and throws `TypeError` on mismatch
 - Enforce arity (number of arguments) and throws `TypeError` on mismatch
 - Works for either positional arguments or destructured arguments (which we'll call "named arguments")
-- Can declare types `string`, `object`, `number`, `boolean` as enforced types, and can even enforce **instances of classes**, such as `Date`
+- Can declare types `string`, `object`, `number`, `boolean`, `array` as enforced types, and can even enforce **instances of classes**, such as `Date`
 
 All arguments checked for type can also be `null` value.
 
