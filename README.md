@@ -11,6 +11,10 @@ This library lets you
 
 All arguments checked for type can also be `null` value.
 
+## Quickstart
+
+Add library `M4wxut0XaxZerFMk3i2mDVfD8R0iiSsw_` with `Enforce` identifier. See examples below on how to use.
+
 ## Example
 
 Declaration is done in (preferably) the first line of the function by passing an object where keys are the name of the arguments, and values are strings that indicate the type. Use `!` to indicate it is `required`:
