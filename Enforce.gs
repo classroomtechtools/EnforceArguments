@@ -74,10 +74,9 @@ class Enforce_ {
     const named = Object.keys(this.params).reduce(
       (acc, key, index) => {
         if (index >= args.length) return acc;
-        acc[0] = acc[0] || {};  // there is only one index in named arguments
         acc[0][key] = args[index];
         return acc;
-      }, {}
+      }, {0: {}}
     );
 
     this.typecheck(named);
