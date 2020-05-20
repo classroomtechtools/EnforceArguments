@@ -125,9 +125,9 @@ function exportedFunction(id, name) {
 
 This library was written so that tye type checking with positional arguments gets the bigger performance penalty than with using named arguments. When you call `Enforce.positional` it converts the passed `arguments` into what that would look like had they been named arguments, and continues. This decision was made because there is already a performance penalty (outside of the use of this library) with using destructuring.
 
-You should also note that there is additional computation involved with the additional overhead of type checking introduced. The potential exists that there will be some performance degradation. 
+You should also note that there is additional computation involved with the additional overhead of type checking introduced. The potential exists that there will be some performance degradation. Some simple performance tests conducted only indicate a difference of 100 milliseconds at 20K calls for named arguments, but a 200 millisecond penalty for positional arguments.
 
-If you are using this library where performance is absolutely essential, you can readily remove it after using it to build your own betas. No problem.
+The author does not see any real risk in slowing it down noticeably for end users. Further performance could be gained by copying and pasting into your project. 
 
 ### Optionals
 
