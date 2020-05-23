@@ -20,18 +20,23 @@ class Enforce_ {
     this.name = name;
     this.params = Object.entries(params).reduce(
       function (acc, [key, value]) {
-        if (typeof (value) === 'function') // assume it's a class
+        const type_ = typeof value;
+        if (type_ === 'function') // assume it's a class
           acc[key] = value;
-        else if (value[0] === '!')
-          acc[key] = value.slice(1).toLowerCase();
-        else
-          acc[key] = value.toLowerCase();
+        else if (type_ === 'string') {
+          if (value[0] === '!')
+            acc[key] = value.slice(1).toLowerCase();
+          else
+            acc[key] = value.toLowerCase();
+        } else {
+          throw new Error(`Passed unknown value ${value}`);
+        }
         return acc;
       }, {}
     );
     
     // filter out parameters that starts with !, and create list of those keys only
-    this.required = Object.entries(params).filter( ([key, value]) => value[0] === '!').map( ([key, value]) => key);
+    this.required = Object.entries(params).filter( ([key, value]) => (value !== null && value[0] === '!')).map( ([key, value]) => key);
   }
   
   static new (...params) {
@@ -57,7 +62,15 @@ class Enforce_ {
     /**
      * Takes args in format of destructured arguments ([0] => {name, value}) and does typechecks, required checks, and arity checks
      */
-    this.typecheck(args);
+    const named = {};
+    for (const key in args) {
+      for (const name in args[key]) {
+        named[name] = args[key][name];
+      }
+    }
+    this.typecheck(named);
+    
+    return named;
   }
 
   enforcePositional (args) {
@@ -67,53 +80,52 @@ class Enforce_ {
      * This works because javascript objects, as long as all of the keys are non-numerical (which we can assume)
      *   retain the order by insertion
      */
-    // check args is not nothing
     if (args === undefined) throw new TypeError('Pass "arguments" to enforcePositional');
-    
-    // convert positional to destructured arguments
-    const named = Object.keys(this.params).reduce(
+    const keys = Object.keys(this.params);
+        
+    // convert positional to required format by typecheck
+    const named = keys.reduce(
       (acc, key, index) => {
         if (index >= args.length) return acc;
-        acc[0][key] = args[index];
+        if (args[index] === undefined) throw new Error(`'undefined' passed to ${this.name} for ${key}`);
+        acc[key] = args[index];
         return acc;
-      }, {0: {}}
+      }, {}
     );
 
-    this.typecheck(named);
+    this.typecheck(named, false);
 
     // Now check for arity as this will be missed in above
-    if (args.length > Object.keys(this.params).length) throw new TypeError(`Too many arguments to ${this.name}. Recieved ${args.length} but expected ${Object.keys(this.params).length}`);
+    if (args.length > keys.length) throw new TypeError(`Too many arguments to ${this.name}. Recieved ${args.length} but expected ${Object.keys(this.params).length}`);
+
+    return named;
   }
 
   /**
-   * Validates args in [0] => {key: value} format
+   * Validates args in key => value format
    */
-  typecheck(args, checkExtra=true) {
-    // arguments is an object-like array, need to flatten it so that we represent it as viewed from function scope
-    let argObj = {};
-    for (const prop in args) {
-      argObj = {...argObj, ...args[prop]};
-    }
-    
+  typecheck(argObj, checkExtra=true) {
     this.enforceRequiredParams(Object.keys(argObj));
     
-    // now that both have matching types, let's go
     for (const prop in this.params) {
-      const at = typeof argObj[prop], et = this.params[prop];    // actual type, expected type
+      const av = argObj[prop], klass = this.params[prop];  // actual value, klass (either passed directly or converted from instance)
+      if (klass === null) continue;       // ensure all null values are not subject to checks
+      const at = typeof av,    et = this.params[prop];     // actual type, expected type
+      if (et === 'any') continue;  // type of 'any' special meaning is to skip it
       if (typeof et === 'function') {
-        if (!(argObj[prop] instanceof et)) throw new TypeError(`Expected instance of class ${this.params[prop].name} but got ${at} instead`);
+        if (!(av instanceof klass)) throw new TypeError(`Expected instance of class ${this.params[prop].name} in ${this.name} but got ${av.constructor.name} instead`);
         continue;
       }
-      if (et === 'any' || argObj[prop] === undefined) continue;  // type of 'any' special meaning is to skip it
       if (et === 'array') {
         // arrays don't respond to typeof why javascript why
         if (!Array.isArray(argObj[prop])) throw new TypeError(`Type mismatch in ${this.name}: "${prop}". Expected array but got ${at}`);
       } else if (at !== et) {
-        throw new TypeError(`Type mismatch in ${this.name}: "${prop}". Expected ${this.params[prop]} but got ${typeof(argObj[prop])} instead`);
+        throw new TypeError(`Type mismatch in ${this.name}: "${prop}". Expected ${this.params[prop]} but got ${av} instead`);
       }
     }
     
     if (checkExtra) {
+      // this is an option because positional arguments need a different kind of check for extra, no need to go here
       const paramSet = new Set(Object.keys(this.params));
       const extra = Object.keys(argObj).filter(x => !paramSet.has(x)).reduce(
         function (acc, key) { 
@@ -123,8 +135,6 @@ class Enforce_ {
       );
       this.extra(extra);
     }
-
-    return argObj[0];
   }
   
   static selfcheck (args) {
@@ -159,9 +169,9 @@ function create (parameters, name) {
  */
 function named (arguments, parameters, comment) {
   if (parameters === undefined || typeof parameters !== 'object') throw new TypeError("Enforce.named needs parameters as object");
-  comment = comment || '<unknown>';
+  comment = comment || '<>';
   const him = Enforce_.new(parameters, comment);
-  him.enforceNamed(arguments);
+  return him.enforceNamed(arguments);
 }
 
 /**
@@ -171,7 +181,7 @@ function named (arguments, parameters, comment) {
  */
 function positional (arguments, parameters, comment) {
   if (parameters === undefined || typeof parameters !== 'object') throw new TypeError("Enforce.positional needs parameters as object");
-  comment = comment || '<unknown>';
+  comment = comment || '<>';
   const him = Enforce_.new(parameters, comment);
-  him.enforcePositional(arguments);
+  return him.enforcePositional(arguments);
 }
