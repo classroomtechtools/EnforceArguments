@@ -11,9 +11,11 @@ This library lets you …
 
 This library …
 - Works for either positional arguments or destructured arguments (which we'll call "named arguments")
+- Treats any argument that is passed as `undefined` as a `TypeError`
 - Understands types `string`, `object`, `number`, `boolean`, `array` as enforced types, and can even enforce **instances of classes**, such as `Date`
 - Understands type `any` to indicate bypass type checking
 - Treats all `null` values as valid values (type checking is bypassed)
+
 
 ## Quickstart
 
