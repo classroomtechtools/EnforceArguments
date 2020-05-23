@@ -4,14 +4,16 @@ A V8 GAS library which enables the ability for the developer to guarantee that f
 
 ![](enforcearguments.gif?raw=true "EnforcedArguments")
 
-This library lets you
+This library lets you …
 - Declare required arguments and throws `TypeError` in their absence
 - Declare expected types, and throws `TypeError` on mismatch
 - Enforce arity (number of arguments) and throws `TypeError` on mismatch
-- Works for either positional arguments or destructured arguments (which we'll call "named arguments")
-- Can declare types `string`, `object`, `number`, `boolean`, `array` as enforced types, and can even enforce **instances of classes**, such as `Date`
 
-All arguments checked for type can also be `null` value.
+This library …
+- Works for either positional arguments or destructured arguments (which we'll call "named arguments")
+- Understands types `string`, `object`, `number`, `boolean`, `array` as enforced types, and can even enforce **instances of classes**, such as `Date`
+- Understands type `any` to indicate bypass type checking
+- Treats all `null` values as valid values (type checking is bypassed)
 
 ## Quickstart
 
@@ -116,6 +118,7 @@ function internalFunction_({id, name}={}) {
  */
 function exportedFunction(id, name) {
 	Enforce.positional(arguments, {id: '!number', name: 'string'});
+	internalFunction_(id);
 }
 ```
 
@@ -123,11 +126,11 @@ function exportedFunction(id, name) {
 
 ### Performance
 
-This library was written so that tye type checking with positional arguments gets the bigger performance penalty than with using named arguments. When you call `Enforce.positional` it converts the passed `arguments` into what that would look like had they been named arguments, and continues. This decision was made because there is already a performance penalty (outside of the use of this library) with using destructuring.
+Type checking with positional arguments gets the bigger performance penalty than with using named arguments. `Enforce.positional` has to do more work in preparation for the checking than `Enforce.named`.
 
-You should also note that there is additional computation involved with the additional overhead of type checking introduced. The potential exists that there will be some performance degradation. Some simple performance tests conducted only indicate a difference of 100 milliseconds at 20K calls for named arguments, but a 200 millisecond penalty for positional arguments.
+Naturally, there is additional computation involved with the additional overhead of type checking introduced. Some simple performance tests conducted only indicate a difference of 100 milliseconds at 20K calls for named arguments, but a 200 millisecond penalty for positional arguments.
 
-The author does not see any real risk in slowing it down noticeably for end users. Further performance could be gained by copying and pasting into your project. 
+The author does not see any real risk in slowing it down noticeably for end users.
 
 ### Optionals
 
