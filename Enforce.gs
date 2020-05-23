@@ -87,7 +87,6 @@ class Enforce_ {
     const named = keys.reduce(
       (acc, key, index) => {
         if (index >= args.length) return acc;
-        if (args[index] === undefined) throw new Error(`'undefined' passed to ${this.name} for ${key}`);
         acc[key] = args[index];
         return acc;
       }, {}
@@ -110,6 +109,7 @@ class Enforce_ {
     for (const prop in this.params) {
       const av = argObj[prop], klass = this.params[prop];  // actual value, klass (either passed directly or converted from instance)
       if (klass === null) continue;       // ensure all null values are not subject to checks
+      if (av === undefined) throw new TypeError(`"undefined" was passed to ${this.name} for ${prop}`);
       const at = typeof av,    et = this.params[prop];     // actual type, expected type
       if (et === 'any') continue;  // type of 'any' special meaning is to skip it
       if (typeof et === 'function') {
