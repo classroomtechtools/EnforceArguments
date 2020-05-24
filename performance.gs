@@ -1,14 +1,14 @@
 /*
   Very simple tests that indicate that with 20000 calls, there is the following performance degration:
   
-  * Named arguments took 100 milliseconds longer than without enforcement
-  * Positional arguments took 200 milliseconds longer than without enforcement
+  * Named arguments took ~60 milliseconds longer than without enforcement
+  * Positional arguments took ~80 milliseconds longer than without enforcement
   
   Output of log:
-  [20-05-20 15:37:27:755 HKT] Enforcing positional arguments took 0.243 seconds
-  [20-05-20 15:37:27:759 HKT] Regular positional arguments took 0.002 seconds
-  [20-05-20 15:37:27:866 HKT] Enforcing named arguments took 0.105 seconds
-  [20-05-20 15:37:27:875 HKT] Regular named arguments took 0.006 seconds
+  [20-05-20 15:37:27:755 HKT] Enforcing positional arguments took 0.079 seconds
+  [20-05-20 15:37:27:759 HKT] Regular positional arguments took 0.001 seconds
+  [20-05-20 15:37:27:866 HKT] Enforcing named arguments took 0.060 seconds
+  [20-05-20 15:37:27:875 HKT] Regular named arguments took 0.003 seconds
 
   The author concludes that this is acceptable. In the use cases in which this is likely to be deployed, 
     this is not likely to have noticeable impact on the end user.
