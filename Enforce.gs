@@ -6,7 +6,7 @@
  * @author Adam Morris classroomtechtools.ctt@gmail.com https://classroomtechtools.com
  * @copyright May 2020
  * @license MIT
- * @version 1.5
+ * @version 2.0
  */
 
 class Enforce_ {
