@@ -18,25 +18,25 @@ class Enforce_ {
      * @param {Object<String>} params
      */
     this.name = name;
+    const required = this.required = [];
     this.params = Object.entries(params).reduce(
       function (acc, [key, value]) {
         const type_ = typeof value;
-        if (type_ === 'function') // assume it's a class
+        if (type_ === 'function') { // assume it's a class
           acc[key] = value;
-        else if (type_ === 'string') {
-          if (value[0] === '!')
+        } else if (type_ === 'string') {
+          if (value[0] === '!') {
+            required.push(key);
             acc[key] = value.slice(1).toLowerCase();
-          else
+          } else {
             acc[key] = value.toLowerCase();
+          }
         } else {
           throw new Error(`Passed unknown value ${value}`);
         }
         return acc;
       }, {}
     );
-    
-    // filter out parameters that starts with !, and create list of those keys only
-    this.required = Object.entries(params).filter( ([key, value]) => (value !== null && value[0] === '!')).map( ([key, value]) => key);
   }
   
   static new (...params) {
