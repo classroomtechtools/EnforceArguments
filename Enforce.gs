@@ -110,6 +110,7 @@ class Enforce_ {
     this.enforceRequiredParams(Object.keys(argObj));
     
     for (const prop in this.params) {
+      if (!argObj.hasOwnProperty(prop)) continue;
       const av = argObj[prop], klass = this.params[prop];  // actual value, klass (either passed directly or converted from instance)
       if (klass === null) continue;       // ensure all null values are not subject to checks
       if (av === undefined) {
@@ -155,7 +156,7 @@ class Enforce_ {
  * @param {Object} parameters
  * @return {EnforceObject}
  */
-function enforce_create (parameters, name) {
+function create (parameters, name) {
   /**
    * Parameters is an object whose keys are parameters in the function you are augmenting.
    * Values determine the type, one of {number, string, boolean, object, any, array}
@@ -169,7 +170,7 @@ function enforce_create (parameters, name) {
 }
 
 /**
- * @param {Array-like} arguments
+ * @param {Array} arguments
  * @param {Object} parameters
  * @parma {String} comment
  */
@@ -181,7 +182,7 @@ function named (arguments, parameters, comment) {
 }
 
 /**
- * @param {Array-like} arguments
+ * @param {Array} arguments
  * @param {Object} parameters
  * @parma {String} comment
  */
