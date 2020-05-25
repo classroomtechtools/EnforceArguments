@@ -11,7 +11,6 @@ This library lets you …
 
 This library …
 - Works for either positional arguments or destructured arguments (which we'll call "named arguments")
-- Treats any argument that is passed as `undefined` as a `TypeError`
 - Understands types `string`, `object`, `number`, `boolean`, `array` as enforced types, and can even enforce **instances of classes**, such as `Date`
 - Understands type `any` to indicate bypass type checking
 - Treats all `null` values as valid values (type checking is bypassed)
@@ -133,6 +132,23 @@ Type checking with positional arguments gets the bigger performance penalty than
 Naturally, there is additional computation involved with the additional overhead of type checking introduced. Some simple performance tests conducted only indicate a difference of 100 milliseconds at 20K calls for named arguments, but a 200 millisecond penalty for positional arguments.
 
 The author does not see any real risk in slowing it down noticeably for end users.
+
+### Default values for optional positional arguments
+
+Use of this library has a limitation for positional arguments. Consider the following case:
+
+```js
+function someFunc(a, b, c) {  // no default values
+  // a, b, and c are undefined, and is ignored
+  Enforce.positional(arguments, {a: 'string', b: 'string', c: 'string'});
+}
+
+// call without any arguments
+// this case will NOT be caught
+someFunc();
+```
+
+
 
 ### Optionals
 
