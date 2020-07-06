@@ -19,15 +19,15 @@ From a endpoint scope anywhere in `src/scripts`:
 
 ```js
 function MyFunction (a, b, c, d, e, f) {
-	const {Enforce} = Import;
+  const {Enforce} = Import;
   Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'});
 }
 
 function RunMyFunction () {
   // executes without error:
-	MyFunction({a: 'required', c:false, d: {}, e: new Date(), f: []);
-	// executes with TypeError because required params missing
-	MyFunction();
+    MyFunction({a: 'required', c:false, d: {}, e: new Date(), f: []);
+    // executes with TypeError because required params missing
+    MyFunction();
 }
 ```
 
@@ -57,7 +57,7 @@ Declaration is done in (preferably) the first line of the function by passing an
 
 ```js
 function drink (liquid, speed=1) {
-	Enforce.positional(arguments, {liquid: '!string', speed: 'number'}, 'drink');
+    Enforce.positional(arguments, {liquid: '!string', speed: 'number'}, 'drink');
 }
 drink('water');  // okay, speed = 1
 drink(124);      // TypeError wrong type
@@ -77,7 +77,7 @@ Works on the same principal above and used in much of the same way.
 
 ```js
 function drink({liquid, speed=1}={}) {
-	Enforce.named(arguments, {liquid: '!string', speed: 'number'}, 'drink');
+    Enforce.named(arguments, {liquid: '!string', speed: 'number'}, 'drink');
 }
 drink({liquid: 'water'});  // okay, speed = 1
 drink({speed: 10});        // TypeError missing "liquid"
@@ -95,7 +95,7 @@ You have a function which is really essential that the arguments passed to it ha
 
 ```js
 function importantFunction(id, name, values, check) {
-	// does something important
+    // does something important
 }
 ```
 
@@ -109,7 +109,7 @@ Required parameters are indicated with `!` as the first character in the string 
 
 ```js
 function importantFunction({id, name, values, check=true}={}) {
-	Enforce.named(arguments, {id: '!number', name: 'string', values: 'array'}, 'importantFunction');
+    Enforce.named(arguments, {id: '!number', name: 'string', values: 'array'}, 'importantFunction');
 }
 ```
 Now this function is supposed to be invoked in the following manner:
@@ -139,7 +139,7 @@ Also, while I *far* prefer using named arguments, GAS libraries expose their fun
 
 ```js
 function internalFunction_({id, name}={}) {
-	Enforce.named(arguments, {id: '!number', name: 'string'});
+    Enforce.named(arguments, {id: '!number', name: 'string'});
 }
 
 /**
@@ -147,8 +147,8 @@ function internalFunction_({id, name}={}) {
  * @param {String} name
  */
 function exportedFunction(id, name) {
-	Enforce.positional(arguments, {id: '!number', name: 'string'});
-	internalFunction_(id);
+    Enforce.positional(arguments, {id: '!number', name: 'string'});
+    internalFunction_(id);
 }
 ```
 
@@ -185,11 +185,11 @@ The `Enforce.*` methods consider a `null` passed value as valid. This means that
 
 ```js
 function getSpreadsheet({id=null}={}) {
-	Enforce.named(arguments, {id: 'number'});  // not required, and so will be null be default
-	if (id === null) {
-		return SpreadsheetApp.create(…);
-	}
-	return SpreadsheetApp.openById(id);
+    Enforce.named(arguments, {id: 'number'});  // not required, and so will be null be default
+    if (id === null) {
+        return SpreadsheetApp.create(…);
+    }
+    return SpreadsheetApp.openById(id);
 }
 
 getSpreadsheet({id: null});
@@ -207,14 +207,14 @@ You won't need as much boilerplate code to ensure the variables are of the expec
 const ssConstructorArgs = {id: '!number'};
 
 class Spreadsheet {
-	constructor (id) {
-		Enforce.positional(arguments, ssConstructorArgs);
-		this.id = id;
-	}
-	static fromId ({id}={}) {
-		Enforce.named(arguments, ssConstructorArgs);
-		return new Spreadsheet(id);
-	}
+    constructor (id) {
+        Enforce.positional(arguments, ssConstructorArgs);
+        this.id = id;
+    }
+    static fromId ({id}={}) {
+        Enforce.named(arguments, ssConstructorArgs);
+        return new Spreadsheet(id);
+    }
 }
 ```
 
@@ -225,13 +225,13 @@ The following is an alternative, but more verbose, way of achieving the same thi
 
 ```js
 class Request {
-	constructor(greeting, noun) {
-		this.greeting = greeting;
-		this.noun = noun;
-	}
-	get content () {
-		return `{"greeting": "${this.greeting}", "noun": "${this.noun}"}`;
-	}
+    constructor(greeting, noun) {
+        this.greeting = greeting;
+        this.noun = noun;
+    }
+    get content () {
+        return `{"greeting": "${this.greeting}", "noun": "${this.noun}"}`;
+    }
 }
 
 // E for "enforce"; we'll use this object to enforce arguments in below function
@@ -253,7 +253,7 @@ Notice that `E.req` makes the argument required; leave it out if the parameter i
 ```js
 const D = Enforce.new('getJson', {request: Request, info: '!string'});
 function getJson(request=D.req, info=D.req) {
-	D.enforcePositional(arguments);
+    D.enforcePositional(arguments);
 }
 ```
 
