@@ -6,54 +6,58 @@ A V8 GAS library which enables the ability for the developer to guarantee that f
 
 ## Quickstart
 ### As an AppsScripts Library
+
 Project ID: `M4wxut0XaxZerFMk3i2mDVfD8R0iiSsw_`
 
 Use as a AppsScripts library like this:
 
 ```js
-function MyFunction (a, b, c, d, e, f) {
-    Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'});
+function UsingPosArgs (a, b=10) {
+    Enforce.positional(arguments, {a: '!string', b: 'number'}, 'UsingPosArgs');
 }
 
-function RunMyFunction () {
+function MyFunction () {
     // executes without error:
-    MyFunction({a: 'required', c:false, d: {}, e: new Date(), f: []);
-    // executes with TypeError because required params missing
-    MyFunction();
+    UsingPosArgs('required' /*, b not passed, default value of 10 */);
+    // 'TypeError: Required arguments in UsingPosArgs not recieved'
+    UsingPosArgs();
+}
+
+function UsingNamedArgs ({a, b=10, c, d={}, e=Date.now, f=[]}={}) {
+    Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e:new Date(), f: 'array'}, 'UsingNamedArgs');
+}
+
+function MyFunction2 () {
+    // executes without error:
+    UsingNamedArgs({a: 'required', /* b is not required, */ c: false, d: {}, e:null, f: []});
+    // 'TypeError: … Expected array but got string'
+    UsingNamedArgs({a: 'required', c: true, f: 'woops'});
 }
 ```
 
 ### As an AppsScripts module
-This is [also available](https://www.npmjs.com/package/@classroomtechtools/enforce_arguments) as an npm module, but requires using [this utility](https://github.com/classroomtechtools/appscripts-modules-ft-svelte) to install with npm:
-
-Use as a module like this:
-
-```bash
-npm install @classroomtechtools/enforce_arguments
-```
-
-From a endpoint scope anywhere in `src/scripts`:
+This is [also available](https://www.npmjs.com/package/@classroomtechtools/enforce_arguments) as an npm module. Using [this utility](https://github.com/classroomtechtools/appscripts-modules-ft-svelte), you can install via `@classroomtechtools/enforce_arguments`. Then use as a module like this:
 
 ```js
-function MyFunction (a, b, c, d, e, f) {
+function UsingPosArgs (a, b=10) {
     const {Enforce} = Import;
-    Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'});
-}
-
-function RunMyFunction () {
-    // executes without error:
-    MyFunction({a: 'required', c:false, d: {}, e: new Date(), f: []);
-    // executes with TypeError because required params missing
-    MyFunction();
+    Enforce.positional(arguments, {a: '!string', b: 'number'}, 'UsingPosArgs');
+}  
+...
+function UsingNamedArgs ({a, b=10, c, d={}, e=Date.now, f=[]}={}) {
+    const {Enforce} = Import;
+    Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'}, 'UsingNamedArgs');
 }
 ```
 
+Or, you can navigate [to the source Bundle file](https://github.com/classroomtechtools/EnforceArguments/blob/master/project/Bundle.js) and include it in your own project (via copy and paste) if that's what floats your boat.
+
 ## Why
-The advantages to guaranteeing that your function parameters are somehow validated become more evident with more complicated usage patterns. For example:
+The advantages to guaranteeing that your function parameters are somehow validated become more evident with more complicated usage patterns. As a code base gets bigger, you might have to start tracking down bugs in the code, and that process is helped if …
 
 * You can assume that required arguments are *always* present
 * You can assume that some particular arguments are a particular type
-* You can also use an argument as null to indicate “nothing”
+* You can also use an argument as `null` to indicate “nothing”
 
 This library lets you …
 - Declare required arguments, which will throw `TypeError` in their absence
@@ -63,7 +67,7 @@ This library lets you …
 ## Discussion
 This library …
 - Works for either positional arguments or destructured arguments (which we'll call "named arguments")
-- Understands types `string`, `object`, `number`, `boolean`, `array` as enforced types, and can even enforce **instances of classes**, such as `Date`
+- Understands types `string`, `object`, `number`, `boolean`, `array` as enforced types, and can even enforce **classes instances**, such as `Date`
 - Understands type `any` to indicate bypass type checking
 - Treats all `null` values as valid values (type checking is bypassed)
 
@@ -194,15 +198,13 @@ function someFunc(a, b, c) {  // no default values
 someFunc();
 ```
 
-
-
 ### Optionals
 
 The `Enforce.*` methods consider a `null` passed value as valid. This means that what we are enforcing is "optional" types, which is quite useful. It means that you can write a function that takes an `id` as a `number` argument, which if it really is a number get the thing at that `id`, but if it's `null` create a new one.
 
 ```js
 function getSpreadsheet({id=null}={}) {
-    Enforce.named(arguments, {id: 'number'});  // not required, and so will be null be default
+    Enforce.named(arguments, {id: 'number'});  // not required, and so null will be the default
     if (id === null) {
         return SpreadsheetApp.create(…);
     }
