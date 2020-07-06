@@ -19,12 +19,12 @@ From a endpoint scope anywhere in `src/scripts`:
 
 ```js
 function MyFunction (a, b, c, d, e, f) {
-  const {Enforce} = Import;
-  Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'});
+    const {Enforce} = Import;
+    Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'});
 }
 
 function RunMyFunction () {
-  // executes without error:
+    // executes without error:
     MyFunction({a: 'required', c:false, d: {}, e: new Date(), f: []);
     // executes with TypeError because required params missing
     MyFunction();
