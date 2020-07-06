@@ -23,7 +23,7 @@ function MyFunction () {
     UsingPosArgs();
 }
 
-function UsingNamedArgs ({a, b=10, c, d={}, e=Date.now, f=[]}={}) {
+function UsingNamedArgs ({a, b=10, c, d={}, e=new Date(), f=[]}={}) {
     Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e:new Date(), f: 'array'}, 'UsingNamedArgs');
 }
 
@@ -44,7 +44,7 @@ function UsingPosArgs (a, b=10) {
     Enforce.positional(arguments, {a: '!string', b: 'number'}, 'UsingPosArgs');
 }  
 ...
-function UsingNamedArgs ({a, b=10, c, d={}, e=Date.now, f=[]}={}) {
+function UsingNamedArgs ({a, b=10, c, d={}, e=new Date(), f=[]}={}) {
     const {Enforce} = Import;
     Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'}, 'UsingNamedArgs');
 }
@@ -138,7 +138,7 @@ Now this function is supposed to be invoked in the following manner:
 importantFunction({id: 1234, name: 'name', values: [1,2]);
 ```
 
-But if you forget the `id`, `name`, or `values` parameters, it'll throw a `TypeError` with the list of required parameters. If you pass an object of the wrong type, it'll throw an error telling you which type it is expecting.
+But if you forget the `id`, `name`, or `values` parameters, it'll throw a `TypeError`. If you pass an object of the wrong type, it'll throw an error telling you which type it is expecting.
 
 If you pass it an extra property, for example `checked` (you misspelled `check`), it'll also throw a `TypeError`. You can also pass the arguments in a different order and still be correct:
 
@@ -146,11 +146,7 @@ If you pass it an extra property, for example `checked` (you misspelled `check`)
 importantFunction({name: 'name', values: [1,2], id: 1234);
 ```
 
-Using named arguments that are enforce is more convenient and more readable, for the following reasons:
-
-- More readable
-- Easier to recall
-- If you get it wrong, let's you know immediately
+Using named arguments that are enforced is more convenient and more readable. The author uses them extensively.
 
 ## Motivation
 
@@ -159,8 +155,10 @@ One motivation is that I far prefer named arguments, and need a convenient way t
 Also, while I *far* prefer using named arguments, GAS libraries expose their functions with positional arguments only. So I used this library to expose library functions, but also lets me write with named arguments:
 
 ```js
+const interface =  {id: '!number', name: 'string'};
+
 function internalFunction_({id, name}={}) {
-    Enforce.named(arguments, {id: '!number', name: 'string'});
+    Enforce.named(arguments, interface);
 }
 
 /**
@@ -168,7 +166,7 @@ function internalFunction_({id, name}={}) {
  * @param {String} name
  */
 function exportedFunction(id, name) {
-    Enforce.positional(arguments, {id: '!number', name: 'string'});
+    Enforce.positional(arguments, interface);
     internalFunction_(id);
 }
 ```
@@ -189,7 +187,7 @@ Use of this library has a limitation for positional arguments. Consider the foll
 
 ```js
 function someFunc(a, b, c) {  // no default values
-  // a, b, and c are undefined, and is ignored
+  // a, b, and c are undefined, and are ignored
   Enforce.positional(arguments, {a: 'string', b: 'string', c: 'string'});
 }
 
@@ -200,7 +198,7 @@ someFunc();
 
 ### Optionals
 
-The `Enforce.*` methods consider a `null` passed value as valid. This means that what we are enforcing is "optional" types, which is quite useful. It means that you can write a function that takes an `id` as a `number` argument, which if it really is a number get the thing at that `id`, but if it's `null` create a new one.
+The `Enforce.*` methods consider a `null` passed value as valid. This means that what we are enforcing are "optional" types, which is quite useful. It means that you can write a function that takes an `id` as a `number` argument, which if it really is a number get the thing at that `id`, but if it's `null` create a new one.
 
 ```js
 function getSpreadsheet({id=null}={}) {
@@ -255,22 +253,24 @@ class Request {
 
 // E for "enforce"; we'll use this object to enforce arguments in below function
 const E = Enforce.create({request: Request, info: '!string'});
-function getJson(request=E.req, info) {
+
+function getJson(request=E.req, info) {  // E.req as default value makes it a required argument
   E.enforcePositional(arguments);
   return JSON.parse(request.content);
 }
 
 // create the instance
-const r = new Request("Hello", "World");
+const req = new Request("Hello", "World");
 
 // now you can use getJson method where the first parameter is checked to ensure it is an instance of Request:
-getJson(r, 'some string (also required)');
+getJson(req, 'some string (also required)');
 ```
 
 Notice that `E.req` makes the argument required; leave it out if the parameter is not required. You can use the usual `!` syntax with `info` for example, which is demonstrated below:
 
 ```js
-const D = Enforce.new('getJson', {request: Request, info: '!string'});
+const D = Enforce.create('getJson', {request: Request, info: '!string'});
+
 function getJson(request=D.req, info=D.req) {
     D.enforcePositional(arguments);
 }
@@ -280,5 +280,5 @@ function getJson(request=D.req, info=D.req) {
 
 ### Function "Decorator?"
 
-I call the above method decorating a function, but realize this is not formal function decorators. Those don't exist (yet?) in V8.
+I call the above method decorating a function, but realize this is not what is usually meant bt formal function decorators. Those don't exist (yet?) in V8.
 
