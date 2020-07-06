@@ -2,6 +2,7 @@
   "name": "appscripts-modules-ft-svelte",
   "version": "1.0.0",
   "repository": "https://github.com/classroomtechtools/svelty-gas-addon-template",
+  "repository": "https://github.com/classroomtechtools/EnforceArguments",
   "license": {
     "type": "MIT",
     "url": "https://spdx.org/licenses/MIT.html"

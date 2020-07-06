@@ -9,7 +9,7 @@ A V8 GAS library which enables the ability for the developer to guarantee that f
 Project ID: `M4wxut0XaxZerFMk3i2mDVfD8R0iiSsw_`
 
 ### As an AppsScripts module
-This is also available to be included via an npm module with [this utility](https://github.com/classroomtechtools/appscripts-modules-ft-svelte):
+This is [also available](https://www.npmjs.com/package/@classroomtechtools/enforce_arguments) as an npm module, but requires using [this utility](https://github.com/classroomtechtools/appscripts-modules-ft-svelte) to install with npm:
 
 ```bash
 npm install @classroomtechtools/enforce_arguments
