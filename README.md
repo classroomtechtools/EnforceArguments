@@ -4,24 +4,53 @@ A V8 GAS library which enables the ability for the developer to guarantee that f
 
 ![](enforcearguments.gif?raw=true "EnforcedArguments")
 
+## Quickstart
+### As an AppsScripts Library
+Project ID: `M4wxut0XaxZerFMk3i2mDVfD8R0iiSsw_`
+
+### As an AppsScripts module
+This is also available to be included via an npm module with [this utility](https://github.com/classroomtechtools/appscripts-modules-ft-svelte):
+
+```bash
+npm install @classroomtechtools/enforce_arguments
+```
+
+From a endpoint scope anywhere in `src/scripts`:
+
+```js
+function MyFunction (a, b, c, d, e, f) {
+	const {Enforce} = Import;
+  Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'});
+}
+
+function RunMyFunction () {
+  // executes without error:
+	MyFunction({a: 'required', c:false, d: {}, e: new Date(), f: []);
+	// executes with TypeError because required params missing
+	MyFunction();
+}
+```
+
+## Why
+The advantages to guaranteeing that your function parameters are somehow validated become more evident with more complicated usage patterns. For example:
+
+* You can assume that required arguments are *always* present
+* You can assume that some particular arguments are a particular type
+* You can also use an argument as null to indicate “nothing”
+
 This library lets you …
-- Declare required arguments and throws `TypeError` in their absence
-- Declare expected types, and throws `TypeError` on mismatch
+- Declare required arguments, which will throw `TypeError` in their absence
+- Declare arguments to have particular types, and will throw  `TypeError` if it isn’t
 - Enforce arity (number of arguments) and throws `TypeError` on mismatch
 
+## Discussion
 This library …
 - Works for either positional arguments or destructured arguments (which we'll call "named arguments")
 - Understands types `string`, `object`, `number`, `boolean`, `array` as enforced types, and can even enforce **instances of classes**, such as `Date`
 - Understands type `any` to indicate bypass type checking
 - Treats all `null` values as valid values (type checking is bypassed)
 
-
-## Quickstart
-
-Add library `M4wxut0XaxZerFMk3i2mDVfD8R0iiSsw_` with `Enforce` identifier. See examples below on how to use.
-
 ## Example
-
 Declaration is done in (preferably) the first line of the function by passing an object where keys are the name of the arguments, and values are strings that indicate the type. Use `!` to indicate it is `required`:
 
 ### Positional arguments example
@@ -74,7 +103,7 @@ It's just so, so important that `id` *has to be an integer*,  `name` *has to be 
 
 Also, the first three are **required**, but `check` is not, and if not it's `true` by default.
 
-If the function is passed anything that doesn't meet the above specification, throw an error that indicates what is missing, or what is wrong. 
+If the function is passed anything that doesn't meet the above specification, throw an error that indicates what is missing, or what is wrong.
 
 Required parameters are indicated with `!` as the first character in the string that declares the type. Using that object, we can use the syntax of [destructuring]([https://davidwalsh.name/destructuring-function-arguments](https://davidwalsh.name/destructuring-function-arguments)) to our advantage to rewrite `importantFunction` like so:
 
@@ -163,7 +192,7 @@ function getSpreadsheet({id=null}={}) {
 	return SpreadsheetApp.openById(id);
 }
 
-getSpreadsheet({id: null});  
+getSpreadsheet({id: null});
 // same as
 getSpreadsheet();
 ```
@@ -196,7 +225,7 @@ The following is an alternative, but more verbose, way of achieving the same thi
 
 ```js
 class Request {
-	constructor(greeting, noun) {		
+	constructor(greeting, noun) {
 		this.greeting = greeting;
 		this.noun = noun;
 	}
@@ -208,7 +237,7 @@ class Request {
 // E for "enforce"; we'll use this object to enforce arguments in below function
 const E = Enforce.create({request: Request, info: '!string'});
 function getJson(request=E.req, info) {
-  E.enforcePositional(arguments);	
+  E.enforcePositional(arguments);
   return JSON.parse(request.content);
 }
 
@@ -224,11 +253,11 @@ Notice that `E.req` makes the argument required; leave it out if the parameter i
 ```js
 const D = Enforce.new('getJson', {request: Request, info: '!string'});
 function getJson(request=D.req, info=D.req) {
-	D.enforcePositional(arguments);	
+	D.enforcePositional(arguments);
 }
 ```
 
-> Requiring an argument as in `info` in the example directly above is not recommended since you'll have to keep the declaration consistent with `"!string"` declaration anyway. 
+> Requiring an argument as in `info` in the example directly above is not recommended since you'll have to keep the declaration consistent with `"!string"` declaration anyway.
 
 ### Function "Decorator?"
 
