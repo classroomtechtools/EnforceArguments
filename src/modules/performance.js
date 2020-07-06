@@ -15,7 +15,7 @@
     
   The author also concludes that using destructuring is slower than positional, but not as much as expected.
  */
- 
+
 function nakedPositional_(a, b, c, d, e, f) { 
 }
 
@@ -31,36 +31,41 @@ function nakedNamed_({a, b, c, d, e, f}={}) {
 }
 
 function conductPerformanceTests() {
+  const iterations = 10000;
   const a = 'string', b = 1234, c = true, d = {hi: 'hi'}, e = new Date(), f = ['one', 'two', 3, 4];
+  let start, end, seconds;
   
-  let start = new Date().getTime();
-  for (let x = 0; x <= 10000; x++) {
+  start = new Date().getTime();
+  for (let x = 0; x <= iterations; x++) {
     enforcedPositional_(a, b, c, d, e, f);
+    enforcedPositional_(a, undefined, c);
   }
-  let end = new Date().getTime();
-  let seconds = (end - start) / 1000;
+  end = new Date().getTime();
+  seconds = (end - start) / 1000;
   Logger.log(`Took ${seconds} seconds`);
 
   start = new Date().getTime();
-  for (let x = 0; x <= 10000; x++) {
+  for (let x = 0; x <= iterations; x++) {
     nakedPositional_(a, b, c, d, e, f);
+    nakedPositional_(a, undefined, c);
   }
   end = new Date().getTime();
   seconds = (end - start) / 1000;
   Logger.log(`Took ${seconds} seconds`);
 
-
   start = new Date().getTime();
-  for (let x = 0; x <= 10000; x++) {
+  for (let x = 0; x <= iterations; x++) {
     enforcedNamed_({a, b, c, d, e, f});
+    enforcedNamed_({a,c});
   }
   end = new Date().getTime();
   seconds = (end - start) / 1000;
   Logger.log(`Took ${seconds} seconds`);
 
   start = new Date().getTime();
-  for (let x = 0; x <= 10000; x++) {
+  for (let x = 0; x <= iterations; x++) {
     nakedNamed_({a, b, c, d, e, f});
+    nakedNamed_({a, c});
   }
   end = new Date().getTime();
   seconds = (end - start) / 1000;

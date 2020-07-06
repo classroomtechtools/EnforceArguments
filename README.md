@@ -233,3 +233,4 @@ function getJson(request=D.req, info=D.req) {
 ### Function "Decorator?"
 
 I call the above method decorating a function, but realize this is not formal function decorators. Those don't exist (yet?) in V8.
+

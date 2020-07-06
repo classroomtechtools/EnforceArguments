@@ -15,7 +15,7 @@ function throwError_(message) {
 
 class Enforce_ {
   constructor (params, name) {
-    /** 
+    /**
      * Save the name and param object
      * converting values to lowercase
      * @param {String} name
@@ -42,26 +42,26 @@ class Enforce_ {
       }, {}
     );
   }
-  
+
   static new (...params) {
     return new Enforce_(...params);
   }
-  
+
   get req() {
     throw Error(`${this.name} is missing a required argument`);
   }
 
   extra(kwargs) {
-    if (Object.entries(kwargs).length > 0) 
+    if (Object.entries(kwargs).length > 0)
       throw Error(`Unknown parameter(s) passed to ${this.name}: ${Object.keys(kwargs)}`);
   }
-  
+
   enforceRequiredParams (passed) {
     const missing = this.required.filter(x => !passed.includes(x));
-    if (missing.length > 0) 
+    if (missing.length > 0)
       throwError_(`Required arguments in ${this.name} not recieved: ${missing}`);
   }
-  
+
   enforceNamed (args) {
     /**
      * Takes args in format of destructured arguments ([0] => {name, value}) and does typechecks, required checks, and arity checks
@@ -73,7 +73,7 @@ class Enforce_ {
       }
     }
     this.typecheck(named, true, true);  // typecheck for named means we need to ensure no undefined and no extra
-    
+
     return named;
   }
 
@@ -85,7 +85,7 @@ class Enforce_ {
      */
     if (args === undefined) throwError_('Pass "arguments" to enforcePositional');
     const keys = Object.keys(this.params);
-        
+
     // convert positional to required format by typecheck
     const named = keys.reduce(
       (acc, key, index) => {
@@ -108,7 +108,7 @@ class Enforce_ {
    */
   typecheck(argObj, checkUndefined=true, checkExtra=true) {
     this.enforceRequiredParams(Object.keys(argObj));
-    
+
     for (const prop in this.params) {
       if (!argObj.hasOwnProperty(prop)) continue;
       const av = argObj[prop], klass = this.params[prop];  // actual value, klass (either passed directly or converted from instance)
@@ -130,12 +130,12 @@ class Enforce_ {
         throwError_(`Type mismatch in ${this.name}: "${prop}". Expected ${this.params[prop]} but got ${av} instead`);
       }
     }
-    
+
     if (checkExtra) {
       // this is an option because positional arguments need a different kind of check for extra, no need to go here
       const paramSet = new Set(Object.keys(this.params));
       const extra = Object.keys(argObj).filter(x => !paramSet.has(x)).reduce(
-        function (acc, key) { 
+        function (acc, key) {
           acc[key] = argObj[key];
           return acc;
         }, {}
@@ -143,7 +143,7 @@ class Enforce_ {
       this.extra(extra);
     }
   }
-  
+
   static selfcheck (args) {
     const Me = Enforce_.new({parameters: '!object', name: '!string'}, 'Enforce.create');
     Me.enforcePositional(args);
@@ -174,11 +174,11 @@ function create (parameters, name) {
  * @param {Object} parameters
  * @parma {String} comment
  */
-function named (arguments, parameters, comment) {
+function named (args, parameters, comment) {
   if (parameters === undefined || typeof parameters !== 'object') throwError_("Enforce.named needs parameters as object");
   comment = comment || '<>';
   const him = Enforce_.new(parameters, comment);
-  return him.enforceNamed(arguments);
+  return him.enforceNamed(args);
 }
 
 /**
@@ -186,9 +186,12 @@ function named (arguments, parameters, comment) {
  * @param {Object} parameters
  * @parma {String} comment
  */
-function positional (arguments, parameters, comment) {
+function positional (args, parameters, comment) {
   if (parameters === undefined || typeof parameters !== 'object') throwError_("Enforce.positional needs parameters as object");
   comment = comment || '<>';
   const him = Enforce_.new(parameters, comment);
-  return him.enforcePositional(arguments);
+  return him.enforcePositional(args);
 }
+
+const Enforce = {create, named, positional};
+export {Enforce};
