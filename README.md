@@ -8,8 +8,25 @@ A V8 GAS library which enables the ability for the developer to guarantee that f
 ### As an AppsScripts Library
 Project ID: `M4wxut0XaxZerFMk3i2mDVfD8R0iiSsw_`
 
+Use as a AppsScripts library like this:
+
+```js
+function MyFunction (a, b, c, d, e, f) {
+    Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'});
+}
+
+function RunMyFunction () {
+    // executes without error:
+    MyFunction({a: 'required', c:false, d: {}, e: new Date(), f: []);
+    // executes with TypeError because required params missing
+    MyFunction();
+}
+```
+
 ### As an AppsScripts module
 This is [also available](https://www.npmjs.com/package/@classroomtechtools/enforce_arguments) as an npm module, but requires using [this utility](https://github.com/classroomtechtools/appscripts-modules-ft-svelte) to install with npm:
+
+Use as a module like this:
 
 ```bash
 npm install @classroomtechtools/enforce_arguments
