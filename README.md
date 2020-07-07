@@ -60,12 +60,14 @@ The advantages to guaranteeing that your function parameters are somehow validat
 * You can also use an argument as `null` to indicate “nothing”
 
 This library lets you …
+
 - Declare required arguments, which will throw `TypeError` in their absence
 - Declare arguments to have particular types, and will throw  `TypeError` if it isn’t
 - Enforce arity (number of arguments) and throws `TypeError` on mismatch
 
 ## Discussion
 This library …
+
 - Works for either positional arguments or destructured arguments (which we'll call "named arguments")
 - Understands types `string`, `object`, `number`, `boolean`, `array` as enforced types, and can even enforce **classes instances**, such as `Date`
 - Understands type `any` to indicate bypass type checking
@@ -135,7 +137,7 @@ function importantFunction({id, name, values, check=true}={}) {
 ```
 Now this function is supposed to be invoked in the following manner:
 ```js
-importantFunction({id: 1234, name: 'name', values: [1,2]);
+importantFunction({id: 1234, name: 'name', values: [1,2]});
 ```
 
 But if you forget the `id`, `name`, or `values` parameters, it'll throw a `TypeError`. If you pass an object of the wrong type, it'll throw an error telling you which type it is expecting.
@@ -181,22 +183,30 @@ Naturally, there is additional computation involved with the additional overhead
 
 The author does not see any real risk in slowing it down noticeably for end users.
 
-### Default values for optional positional arguments
+Beware of Default Values
 
-Use of this library has a limitation for positional arguments. Consider the following case:
+Use of this library has a limitation involving use of default values , which has to do with how `arguments` variable works in JavaScript. Consider the following case:
 
 ```js
-function someFunc(a, b, c) {  // no default values
-  // a, b, and c are undefined, and are ignored
-  Enforce.positional(arguments, {a: 'string', b: 'string', c: 'string'});
+function someFunc(a=1) {  // default value is a number
+  Enforce.positional(arguments, {a: 'string'});  // but we define as a string here
 }
 
 // call without any arguments
-// this case will NOT be caught
-someFunc();
+// a is absent in function call, and so
+// "arguments" keyword does not contain anything for `a`
+someFunc();  // no error!
 ```
 
-### Optionals
+Above, we’ve defined a function with a parameter `a` that has a default value of `1`. Yet, we also specify through the interface of `Enforce.positional` that we are expecting a type `string`. When we invoke the function, we are expecting it to catch that issue. After all, the variable `a` will be `1`, right?
+
+The issue is that the code uses `arguments` to determine type checks, and when default value is used, that argument is `undefined` inside of the `arguments` variable. So there’s now way for `Enforce.positional` to know that the default value has an incompatible type with it.
+
+The same applies to `Enforce.named`.
+
+This is a potential gotcha, but one that is not a show-stopper. The programmer has to ensure that the default value is compatible string type that is declared in the interface.
+
+### A Note on `null` values: Optionals
 
 The `Enforce.*` methods consider a `null` passed value as valid. This means that what we are enforcing are "optional" types, which is quite useful. It means that you can write a function that takes an `id` as a `number` argument, which if it really is a number get the thing at that `id`, but if it's `null` create a new one.
 
@@ -216,9 +226,9 @@ getSpreadsheet();
 
 You can also use this method with class methods.
 
-### Use them classes
+### Applying to class methods
 
-You won't need as much boilerplate code to ensure the variables are of the expected type.
+Same technique applies to class methods. This example simplfies the code so that we're not repeating ourselves.
 
 ```js
 const ssConstructorArgs = {id: '!number'};
@@ -238,47 +248,45 @@ class Spreadsheet {
 
 ### Declarative vs Decorate
 
-The following is an alternative, but more verbose, way of achieving the same thing. The only real reason to use this method is if one of the arguments needs to be an **instance of a class** and it is **required**.
+The following is an alternative, but more verbose, way of working with this library. You need to use it in a different way to get the same results, but there is more typing involved. 
+
+The use case where this method shines is if you have a function where one of the arguments needs to be an instance of a class **and** it is required. Using our above method, this is not possible to do, since we indicate required parameters with a `’!’` in front, but when asking for class instances, you pass the actual class itself. No room to prepend a string.
+
+How would you declare a function that requires a `Date` object?
 
 ```js
-class Request {
-    constructor(greeting, noun) {
-        this.greeting = greeting;
-        this.noun = noun;
-    }
-    get content () {
-        return `{"greeting": "${this.greeting}", "noun": "${this.noun}"}`;
-    }
+function NeedDate(date=new Date()) {
+    Enforce.positional(arguemnts, {date: Date});  // not indicates as required!
 }
+```
 
+So, we use the this alternative method, which I’m calling the “declarative” option:
+
+```js
 // E for "enforce"; we'll use this object to enforce arguments in below function
-const E = Enforce.create({request: Request, info: '!string'});
+const E = Enforce.create({date: Date, info: '!string'});
 
-function getJson(request=E.req, info) {  // E.req as default value makes it a required argument
-  E.enforcePositional(arguments);
-  return JSON.parse(request.content);
+function getSomething(request=E.req, info) {  // E.req makes it required
+    E.enforcePositional(arguments);	
+    ...
 }
 
 // create the instance
-const req = new Request("Hello", "World");
+const d = new Date();
 
 // now you can use getJson method where the first parameter is checked to ensure it is an instance of Request:
-getJson(req, 'some string (also required)');
+getSomething(d, 'some string (also required)');
 ```
 
 Notice that `E.req` makes the argument required; leave it out if the parameter is not required. You can use the usual `!` syntax with `info` for example, which is demonstrated below:
 
 ```js
-const D = Enforce.create('getJson', {request: Request, info: '!string'});
+const D = Enforce.create({request: Request, info: '!string'});
 
 function getJson(request=D.req, info=D.req) {
-    D.enforcePositional(arguments);
+    D.enforcePositional(arguments);	
 }
 ```
 
-> Requiring an argument as in `info` in the example directly above is not recommended since you'll have to keep the declaration consistent with `"!string"` declaration anyway.
-
-### Function "Decorator?"
-
-I call the above method decorating a function, but realize this is not what is usually meant bt formal function decorators. Those don't exist (yet?) in V8.
+> Requiring an argument as in `info` in the example directly above is not recommended since you'll have to keep the declaration consistent with `"!string"` declaration anyway. 
 
