@@ -5,52 +5,30 @@ A V8 GAS library which enables the ability for the developer to guarantee that f
 ![](enforcearguments.gif?raw=true "EnforcedArguments")
 
 ## Quickstart
-### As an AppsScripts Library
 
-Project ID: `M4wxut0XaxZerFMk3i2mDVfD8R0iiSsw_`
-
-Use as a AppsScripts library like this:
+Project ID: `M4wxut0XaxZerFMk3i2mDVfD8R0iiSsw_`, then use like this:
 
 ```js
-function UsingPosArgs (a, b=10) {
-    Enforce.positional(arguments, {a: '!string', b: 'number'}, 'UsingPosArgs');
+function Example1 () {
+    function UsingPosArgs (a, b=10) {
+        Enforce.positional(arguments, {a: '!string', b: 'number'});
+    }
+    UsingPosArgs('required');  // executes without error
+    UsingPosArgs();  // 'TypeError: Required arguments in UsingPosArgs not recieved'
 }
 
-function MyFunction () {
-    // executes without error:
-    UsingPosArgs('required' /*, b not passed, default value of 10 */);
-    // 'TypeError: Required arguments in UsingPosArgs not recieved'
-    UsingPosArgs();
-}
-
-function UsingNamedArgs ({a, b=10, c, d={}, e=new Date(), f=[]}={}) {
-    Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e:new Date(), f: 'array'}, 'UsingNamedArgs');
-}
-
-function MyFunction2 () {
-    // executes without error:
-    UsingNamedArgs({a: 'required', /* b is not required, */ c: false, d: {}, e:null, f: []});
-    // 'TypeError: … Expected array but got string'
-    UsingNamedArgs({a: 'required', c: true, f: 'woops'});
+function Example2 () {
+    function UsingNamedArgs ({a, b=10, c=[]}={}) {
+        Enforce.named(arguments, {a: '!string', b: 'number', c: 'array'});
+    }
+    UsingNamedArgs({a: 'required', c: []});  // executes without error:
+    UsingNamedArgs({a: 'required', c: true, f: 'woops'});  // 'TypeError: … Expected array but got string'
 }
 ```
 
-### As an AppsScripts module
-This is [also available](https://www.npmjs.com/package/@classroomtechtools/enforce_arguments) as an npm module. Using [this utility](https://github.com/classroomtechtools/appscripts-modules-ft-svelte), you can install via `@classroomtechtools/enforce_arguments`. Then use as a module like this:
+### Also available as an npm module
 
-```js
-function UsingPosArgs (a, b=10) {
-    const {Enforce} = Import;
-    Enforce.positional(arguments, {a: '!string', b: 'number'}, 'UsingPosArgs');
-}  
-...
-function UsingNamedArgs ({a, b=10, c, d={}, e=new Date(), f=[]}={}) {
-    const {Enforce} = Import;
-    Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'}, 'UsingNamedArgs');
-}
-```
-
-Or, you can navigate [to the source Bundle file](https://github.com/classroomtechtools/EnforceArguments/blob/master/project/Bundle.js) and include it in your own project (via copy and paste) if that's what floats your boat.
+For those who would are curious about using this package as a module, see last section below.
 
 ## Why
 The advantages to guaranteeing that your function parameters are somehow validated become more evident with more complicated usage patterns. As a code base gets bigger, you might have to start tracking down bugs in the code, and that process is helped if …
@@ -248,7 +226,7 @@ class Spreadsheet {
 
 ### Declarative vs Decorate
 
-The following is an alternative, but more verbose, way of working with this library. You need to use it in a different way to get the same results, but there is more typing involved. 
+The following is an alternative, but more verbose, way of working with this library. You need to use it in a different way to get the same results, but there is more typing involved.
 
 The use case where this method shines is if you have a function where one of the arguments needs to be an instance of a class **and** it is required. Using our above method, this is not possible to do, since we indicate required parameters with a `’!’` in front, but when asking for class instances, you pass the actual class itself. No room to prepend a string.
 
@@ -267,7 +245,7 @@ So, we use the this alternative method, which I’m calling the “declarative�
 const E = Enforce.create({date: Date, info: '!string'});
 
 function getSomething(request=E.req, info) {  // E.req makes it required
-    E.enforcePositional(arguments);	
+  E.enforcePositional(arguments);
     ...
 }
 
@@ -284,9 +262,44 @@ Notice that `E.req` makes the argument required; leave it out if the parameter i
 const D = Enforce.create({request: Request, info: '!string'});
 
 function getJson(request=D.req, info=D.req) {
-    D.enforcePositional(arguments);	
+    D.enforcePositional(arguments);
 }
 ```
 
-> Requiring an argument as in `info` in the example directly above is not recommended since you'll have to keep the declaration consistent with `"!string"` declaration anyway. 
+> Requiring an argument as in `info` in the example directly above is not recommended since you'll have to keep the declaration consistent with `"!string"` declaration anyway.
+
+##
+
+
+### Use it as an AppsScripts module
+
+This is [also available](https://www.npmjs.com/package/@classroomtechtools/enforce_arguments) as an npm module. Using [this utility](https://github.com/classroomtechtools/appscripts-modules-ft-svelte), you can install via
+
+```bash
+npm install @classroomtechtools/enforce_arguments
+```
+
+First you have to write a module:
+
+```js
+// ./src/modules/enforce.js
+import {Enforce} from '@classroomtechtools/enforce_arguments';
+export {Enforce};
+```
+
+Then use as a module like this:
+
+```js
+function UsingPosArgs (a, b=10) {
+    const {Enforce} = Import;
+    Enforce.positional(arguments, {a: '!string', b: 'number'}, 'UsingPosArgs');
+}
+
+function UsingNamedArgs ({a, b=10, c, d={}, e=new Date(), f=[]}={}) {
+    const {Enforce} = Import;
+    Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'}, 'UsingNamedArgs');
+}
+```
+
+Or, you can navigate [to the source Bundle file](https://github.com/classroomtechtools/EnforceArguments/blob/master/project/Bundle.js) and include it in your own project (via copy and paste) if that's what floats your boat.
 
