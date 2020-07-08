@@ -20,19 +20,17 @@ function nakedPositional_(a, b, c, d, e, f) {
 }
 
 function enforcedPositional_(a, b, c, d, e, f) {
-  const {positional} = Import;
-  positional(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'});
+  Enforce.positional(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'});
 }
 
 function enforcedNamed_({a, b, c, d, e, f}={}) {
-  const {named} = Import;
-  named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'});
+  Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'});
 }
 
 function nakedNamed_({a, b, c, d, e, f}={}) {
 }
 
-function conductPerformanceTests() {
+function conductPerformanceTests_() {
   const {Log} = Import;
   Log();
 

@@ -11,31 +11,28 @@
 
 /**
  * @param {String} name
- * @param {Object} parameters
+ * @param {Object} paramObj
  * @return {EnforceObject}
  */
-function create (parameters, name) {
-  const {create: create_} = Import.Enforce;
-  return create_(parameters, name);
+function create (paramObj, name) {
+  return Enforce.create(paramObj, name);
 }
 
 /**
  * @param {Array} arguments
- * @param {Object} parameters
+ * @param {Object} paramObj
  * @parma {String} comment
  */
-function named (args, parameters, comment) {
-  const {named: named_} = Import.Enforce;
-  return named_(args, parameters, comment);
+function named (arguments, paramObj, comment) {
+  return Enforce.named(arguments, paramObj, comment);
 }
 
 /**
  * @param {Array} arguments
- * @param {Object} parameters
+ * @param {Object} paramObj
  * @parma {String} comment
  */
-function positional (args, parameters, comment) {
-  const {positional: positional_} = Import.Enforce;
-  return positional_(args, parameters, comment);
+function positional (arguments, paramObj, comment) {
+  return Enforce.positional(arguments, paramObj, comment);
 }
 
