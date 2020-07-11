@@ -196,5 +196,5 @@ function positional (args, parameters, comment) {
 const Enforce = {create, named, positional};
 export {Enforce};
 
-// install it globally
-window.Enforce = Enforce;
+// install it globally if window global is available
+try {window.Enforce = Enforce} catch (e) {};
