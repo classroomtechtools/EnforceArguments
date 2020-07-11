@@ -1,6 +1,5 @@
-const test = require('ava');
-const Import = require('../project/Bundle.js');
-const {Enforce} = Import;
+import test from 'ava';
+import {Enforce} from '../src/modules/EnforceArguments.js';
 
 test('enforce types on arguments', t => {
     const E = Enforce.create({a: '!string', b: Date, c: 'array', d: 'number'}, 'help');

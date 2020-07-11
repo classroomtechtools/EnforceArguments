@@ -1,6 +1,5 @@
-const test = require('ava');
-const Import = require('../project/Bundle.js');
-const {Enforce} = Import;
+import test from 'ava';
+import {Enforce} from '../src/modules/EnforceArguments.js';
 
 test('Enforce.create throws TypeError given parameters with incorrect types', t => {
     const incorrect_parameters = [ [], [{}], ['1', {}], [{}, {}]];

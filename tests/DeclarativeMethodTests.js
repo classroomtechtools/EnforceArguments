@@ -1,6 +1,8 @@
-const test = require('ava');
-const Import = require('../project/Bundle.js');
-const {Enforce} = Import;
+import test from 'ava';
+import {Enforce} from '../src/modules/EnforceArguments.js';
+//const test = require('ava');
+//const Import = require('../project/Bundle.js');
+//const {Enforce} = Import;
 
 test("Alternative .req method", t => {
     const E = Enforce.create({a: Date}, 'name');

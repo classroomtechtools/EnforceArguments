@@ -3,6 +3,7 @@
   "version": "1.0.2",
   "description": "   A V8 GAS library which enables the ability for the developer to guarantee that functions receive arguments that match the expected types and values.",
   "main": "src/modules/EnforceArguments.js",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/classroomtechtools/EnforceArguments.git"
@@ -21,7 +22,7 @@
     "dev": "rollup -c -w",
     "start": "sirv build/svelte",
     "deploy": "run-s postprocess clasp:push",
-    "postprocess": "run-s rm-artifacts build generate",
+    "bundle": "run-s rm-artifacts build generate",
     "rm-artifacts": "rm -fr ./project/*",
     "generate": "run-p generate:*",
     "generate:remote": "cp -r ./src/scripts/* ./project/",
