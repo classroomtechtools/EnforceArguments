@@ -1,6 +1,6 @@
 {
   "name": "@classroomtechtools/enforce_arguments",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "   A V8 GAS library which enables the ability for the developer to guarantee that functions receive arguments that match the expected types and values.",
   "main": "src/modules/EnforceArguments.js",
   "type": "module",
