@@ -10,7 +10,13 @@
  */
 
 function throwError_(message) {
-   throw new TypeError(message);
+   try {
+     throw new Error();
+   } catch (e) {
+     const stack = e.stack.split(' at ').slice(5).join(' at ');
+     throw new TypeError(message + ': ' + stack);
+   }
+
 }
 
 class Enforce_ {
