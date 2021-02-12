@@ -6,7 +6,10 @@ A V8 GAS library which enables the ability for the developer to guarantee that f
 
 ## Quickstart
 
-Project ID: `M4wxut0XaxZerFMk3i2mDVfD8R0iiSsw_`, then use like this:
+Install:
+
+- Library `1K6Ts55BjQFDFTTfnDQsAIH3ZWO7yy9-jUCG4Wayot5UUN6ZmS4vqTxqU`
+- Project ID: `M4wxut0XaxZerFMk3i2mDVfD8R0iiSsw_`, then use like this:
 
 ```js
 function Example1 () {

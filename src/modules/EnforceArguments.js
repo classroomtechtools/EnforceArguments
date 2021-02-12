@@ -65,7 +65,7 @@ class Enforce_ {
   enforceRequiredParams (passed) {
     const missing = this.required.filter(x => !passed.includes(x));
     if (missing.length > 0)
-      throwError_(`Required arguments in ${this.name} not recieved: ${missing}`);
+      throwError_(`Either missing required arguments in ${this.name} not recieved: ${missing}, or you passed as a positional argument (expecting destructuring)`);
   }
 
   enforceNamed (args) {
@@ -176,7 +176,7 @@ function create (parameters, name) {
 }
 
 /**
- * @param {Array} arguments
+ * @param {Array} args
  * @param {Object} parameters
  * @parma {String} comment
  */
@@ -188,7 +188,7 @@ function named (args, parameters, comment) {
 }
 
 /**
- * @param {Array} arguments
+ * @param {Array} args
  * @param {Object} parameters
  * @parma {String} comment
  */

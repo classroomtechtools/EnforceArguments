@@ -9,7 +9,7 @@ export default [{
 	treeshake: true,
 	output: {
 		format: 'cjs',
-		file: './project/Bundle.js',
+		file: './build/Bundle.js',
 		banner: '/* Bundle as defined from all files in src/modules/*.js */\nconst Import = Object.create(null);\n',
 		intro: '(function (exports, window) {',
 		outro: '})(Import, this);\ntry{exports.Import = Import;}catch(e){}'

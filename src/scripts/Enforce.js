@@ -15,24 +15,27 @@
  * @return {EnforceObject}
  */
 function create (paramObj, name) {
+  const {Enforce} = Import;
   return Enforce.create(paramObj, name);
 }
 
 /**
- * @param {Array} arguments
+ * @param {Array} args
  * @param {Object} paramObj
  * @parma {String} comment
  */
-function named (arguments, paramObj, comment) {
-  return Enforce.named(arguments, paramObj, comment);
+function named (args, paramObj, comment) {
+  const {Enforce} = Import;
+  return Enforce.named(args, paramObj, comment);
 }
 
 /**
- * @param {Array} arguments
+ * @param {Array} args
  * @param {Object} paramObj
  * @parma {String} comment
  */
-function positional (arguments, paramObj, comment) {
-  return Enforce.positional(arguments, paramObj, comment);
+function positional (args, paramObj, comment) {
+  const {Enforce} = Import;
+  return Enforce.positional(args, paramObj, comment);
 }
 
