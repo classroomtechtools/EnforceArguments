@@ -47,3 +47,12 @@ test('fail if required params not passed', t => {
     t.true(result === 'hi');
 });
 
+test('enforce functions', t => {
+    function Tester ({a=null}={}) {
+        Enforce.named(arguments, {a: '!function'});
+        return a();
+    }
+    const result = Tester({a: ()=> 1});
+    t.true(result === 1);
+});
+
