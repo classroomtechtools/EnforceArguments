@@ -160,14 +160,31 @@ So, basically, you use `Enforce.positional(arguments, ...)` inside functions tha
 
 ### Hybrid arguments
 
-Let's make a more abstract function, called `verb`, where you define the `kind`, `actor`, and `target`. You also need to pass it an `options` argument. Finally, the first parameter is an `id` number.
+Let's make a more abstract function, called `verb`, where you define the `kind`, `actor`, and `target`. You also need a time for `when` this verb happened, which is a date. You also need the function to have an `options` argument. Finally, the first parameter is an `id` number, which is the serial number from a database or something.
 
 This is what the call signature looks like:
 ```js
-function verb(id, {kind, actor, target}={}, options={}) {
-
+function verb(id, {when, kind, actor, target}={}, options={}) {
 }
 ```
+
+You need to declare that all of these parameters are required, except for options. This is how to do that:
+
+```js
+function verb(id, {when, kind, actor, target}={}, options={}) {
+    Enforce.hybrid(arguments, {id: '!number', obj: {when: '!any', kind: '!string', actor: '!string', target: '!string'}, options: 'object'});
+}
+```
+
+And use it like this:
+
+```js
+verb(1, {when: new Date(), kind: 'drink', actor: 'me', target: 'you'}, {key: 'value'}});
+```
+
+And we're good to go. Errors are thrown if used incorrectly, and when writing the function you can assume those things are what they say there are.
+
+> **Note:** This solution uses `!any` to declare that the `when` parameter can be anything, but is required. This is a simple way of getting what we need, but it's possible that it won't be a date. If you're looking to actually type-check for an actual date object, see "Advanced" below.
 
 ### Example: `importantFunction`
 
