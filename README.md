@@ -2,13 +2,16 @@
 
 Type-checking for AppsScripts V8 functions. Build call signatures and check for expected types at runtime. 
 
-Advanced features, such as checking argument is an instance of a class, also available.
+Advanced features, such as checking argument is an instance of a class, are also available.
+
+> **Note**: The documentation for [this repo on github](https://github.com/classroomtechtools/EnforceArguments) is also available in a [prettier format](https://classroomtechtools.github.io/ObjectStore).
 
 ## Quickstart
 
 Install:
 
 - Library `1K6Ts55BjQFDFTTfnDQsAIH3ZWO7yy9-jUCG4Wayot5UUN6ZmS4vqTxqU`
+- Latest version is `13`
 
 ```js
 // Example 1:

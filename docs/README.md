@@ -1,8 +1,10 @@
 # EnforceArguments
 
-Type checking for AppsScripts V8 functions. Build call signatures and check for expected types at runtime. 
+Type-checking for AppsScripts V8 functions. Build call signatures and check for expected types at runtime. 
 
-Advanced features, such as checking argument is an instance of a class, also available.
+Advanced features, such as checking argument is an instance of a class, are also available.
+
+> **Note**: This documentation for [this repo on github](https://github.com/classroomtechtools/EnforceArguments) is also available in a [prettier format](https://classroomtechtools.github.io/ObjectStore).
 
 ## Quickstart
 
@@ -51,13 +53,13 @@ Above, we have both positional and named parameters. Very useful and solved eleg
 
 ## Why
 
-Bugs or unexpected behaviours can result due to JavaScripts leniency when it comes to passing arguments. TypeScript does type checking better, but it's unlikely AppsScripts platform itself will have such typing features. 
+Bugs or unexpected behaviours can result due to JavaScripts leniency when it comes to passing arguments. TypeScript does type-checking better, but it's unlikely AppsScripts platform itself will have such typing features. 
 
 You can use TypeScript via node and clasp, which is especially useful for keeping things internally consistent in the project itself. But libraries that are written to be consumed by other AppsScripts projects need to define entry-points, written and consumed by AppsScripts runtime, where type-checking would be compelling.
 
 ### Advantages
 
-Software that has runtime type checks means:
+Software that has runtime type-checks means:
 
 * You can assume that required arguments are *always* present
 * You can assume that some particular arguments are a particular type
@@ -83,6 +85,7 @@ With this library, you have to annotate, in your function, the types your argume
 - `"string"`
 - `"object"`
 - `"boolean"`
+- `"array"` (no way to say "array of strings", just a plain "array")
 - `"function"` (for callbacks, but could also be class instances)
 
 To indicate it is required, place a bang in front, i.e. `"!string"`.
@@ -187,11 +190,11 @@ Using named arguments that are enforced is more convenient and more readable. Th
 
 ### Performance
 
-Type checking with positional arguments gets the bigger performance penalty than with using named arguments. `Enforce.positional` has to do more work in preparation for the checking than `Enforce.named`.
+Type-checking will of course introduce some performance degradation, but tests indicate this is negligible as implemented via this library. `Enforce.positional` is faster than `Enforce.named`, and `Enforce.hybrid` is the slowest (since it's essentially doing both of the former two).
 
-Naturally, there is additional computation involved with the additional overhead of type checking introduced. Some simple performance tests conducted only indicate a difference of 100 milliseconds at 20K calls for named arguments, but a 200 millisecond penalty for positional arguments.
+Some simple performance tests conducted only indicate that even with 200,000 calls with the slowest type-checking (hybrid), it added 100 milliseconds to the total execution time.
 
-The author does not see any real risk in slowing it down noticeably for end users.
+The library itself has a file `Performance.gs` for more inforamtion.
 
 ### Known limitations
 
@@ -210,7 +213,7 @@ someFunc();  // no error!
 
 Above, we’ve defined a function with a parameter `a` that has a default value of `1`. Yet, we also specify through the interface of `Enforce.positional` that we are expecting a type `string`. When we invoke the function, we are expecting it to catch that issue. After all, the variable `a` will be `1`, right?
 
-The issue is that the code uses `arguments` to determine type checks, and when default value is used, that argument is `undefined` inside of the `arguments` variable. So there’s now way for `Enforce.positional` to know that the default value has an incompatible type with it.
+The issue is that the code uses `arguments` to determine type-checks, and when default value is used, that argument is `undefined` inside of the `arguments` variable. So there’s now way for `Enforce.positional` to know that the default value has an incompatible type with it.
 
 The same applies to `Enforce.named`.
 
@@ -294,3 +297,36 @@ The way this works is actually quite interesting. Default parameters such as `D.
 The library defines the `.req` as a "get" property, which means that when it's evaluated it calls the function, which is possible to do as described above. Since it is only called when not present, the function simply raises a type error.
 
 > **Note**: Because of the decoupling involved above, the TypeError you receive is not as helpful as using the "normal" method of using this library.
+
+## Development
+
+This library was written with locally with node with unit tests. You can build your own by cloning the repo:
+
+```
+npm i
+npm run test
+```
+
+Output: 
+
+```
+  ✔ DeclarativeMethodTests › Alternative .req methods
+  ✔ DeclarativeMethodTests › Hybrid with options at end
+  ✔ DeclarativeMethodTests › Alternative .req methods throws errors
+  ✔ EnforceArguments › enforce types on arguments
+  ✔ EnforceArguments › fail if required params not passed
+  ✔ EnforceArguments › enforce functions
+  ✔ Limitations › When arguments are assigned default values, they are not type-checked
+  ✔ Limitations › Types are 'optionals': null values are valid
+  ✔ Hybrid › Hybrid approach with positional then calling typecheck works
+  ✔ Hybrid › Hybrid with first param "object"
+  ✔ Hybrid › Hybrid with missing first param
+  ✔ Hybrid › Hybrid with mismatched first param
+  ✔ Hybrid › no destructred object with required param throws exception
+  ✔ Hybrid › required named param missing throw exception
+  ✔ Hybrid › wrong type in named parameters throws exception
+  ✔ EnforceCreateTests › Enforce.create throws TypeError given parameters with incorrect types
+  ✔ EnforceCreateTests › Enforce.create produces object
+  ✔ IntentionalBehaviour › Default types that are incompatible are not type-checked
+```
+
