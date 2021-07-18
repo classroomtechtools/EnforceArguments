@@ -186,7 +186,7 @@ Required parameters are indicated with `!` as the first character in the string 
 
 ```js
 function importantFunction({id, name, values, check=true}={}) {
-    Enforce.named(arguments, {id: '!number', name: 'string', values: 'array'}, 'importantFunction');
+    Enforce.named(arguments, {id: '!number', name: '!string', values: '!array'}, 'importantFunction');
 }
 ```
 Now this function is supposed to be invoked in the following manner:
@@ -202,7 +202,7 @@ If you pass it an extra property, for example `checked` (you misspelled `check`)
 importantFunction({name: 'name', values: [1,2], id: 1234);
 ```
 
-Using named arguments that are enforced is more convenient and more readable. The author uses them extensively.
+Using named arguments that are enforced is more convenient and more readable. The author uses them extensively, as it adds more context to what is happening in the program.
 
 ## Notes & More
 
