@@ -83,6 +83,7 @@ With this library, you have to annotate, in your function, the types your argume
 - `"string"`
 - `"object"`
 - `"boolean"`
+- `"array"` (no way to say "array of strings", just a plain "array")
 - `"function"` (for callbacks, but could also be class instances)
 
 To indicate it is required, place a bang in front, i.e. `"!string"`.
@@ -187,11 +188,11 @@ Using named arguments that are enforced is more convenient and more readable. Th
 
 ### Performance
 
-Type-checking with positional arguments gets the bigger performance penalty than with using named arguments. `Enforce.positional` has to do more work in preparation for the checking than `Enforce.named`.
+Type-checking will of course introduce some performance degradation, but tests indicate this is negligible as implemented via this library. `Enforce.positional` is faster than `Enforce.named`, and `Enforce.hybrid` is the slowest (since it's essentially doing both of the former two).
 
-Naturally, there is additional computation involved with the additional overhead of type-checking introduced. Some simple performance tests conducted only indicate a difference of 100 milliseconds at 20K calls for named arguments, but a 200 millisecond penalty for positional arguments.
+Some simple performance tests conducted only indicate that even with 200,000 calls with the slowest type-checking (hybrid), it added 100 milliseconds to the total execution time.
 
-The author does not see any real risk in slowing it down noticeably for end users.
+The library itself has a file `Performance.gs` for more inforamtion.
 
 ### Known limitations
 
@@ -326,3 +327,4 @@ Output:
   ✔ EnforceCreateTests › Enforce.create produces object
   ✔ IntentionalBehaviour › Default types that are incompatible are not type-checked
 ```
+

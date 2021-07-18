@@ -39,3 +39,12 @@ function positional (args, paramObj, comment) {
   return Enforce.positional(args, paramObj, comment);
 }
 
+/**
+ * @param {Array} args
+ * @param {Object} paramObj
+ * @parma {String} comment
+ */
+function hybrid (args, paramObj, comment) {
+  const {Enforce} = Import;
+  return Enforce.hybrid(args, paramObj, comment);
+}
