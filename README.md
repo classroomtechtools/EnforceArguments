@@ -78,9 +78,25 @@ Functions arguments cannot be typechecked in arrow functions, as it uses the `ar
 
 Of course, using arrow fuctions elsewhere in your project is perfectly fine.
 
-## Declaring Types
+## How
 
-With this library, you have to annotate, in your function, the types your arguments are supposed to be. You do that with strings for the following namesake types:
+With this library, you have to annotate, in your function, the types your arguments are supposed to be. You do that on the first line of your function body. Depending on the kind of function signature it has, and which JavaScript-y way of passing them, you use `Enforce.positional` or `Enforce.named`. More adventurous can use the `Enforce.hybrid` method, which allows you to mix positional arguments as the baseline, and named arguments contained within. 
+
+Whichever you use, for the first parameter you *must* give it the `arguments` JavaScript keyword, which is an object that allows for inspection of the arguments that have been passed. The library will then validate, based on what you send in the second parameter. 
+
+```js
+// Example 1:
+// a function where first param is required, second is optional:
+function UsingPosArgs (a, b=10) {
+    Enforce.positional(arguments, {a: '!string', b: 'number'});
+}
+```
+
+The second parameter is an object with matching arguments as keys, and type declarations as values. 
+
+The second parameter order has to match the order of the function signature. For positional arguments, the names of the keys do not matter, although obviously better to have them match. For named arugments, however, they *must* match.
+
+This is the list that can be used as values for the second parameter:
 
 - `"number"`
 - `"string"`
@@ -88,10 +104,11 @@ With this library, you have to annotate, in your function, the types your argume
 - `"boolean"`
 - `"array"` (no way to say "array of strings", just a plain "array")
 - `"function"` (for callbacks, but could also be class instances)
+- `"any"` (no meaningful validation, unless you use `"!any"`)
 
 To indicate it is required, place a bang in front, i.e. `"!string"`.
 
-> **Note**: If an object can be a string or null, then it is covered by declaring it as string. If null is passed, it will not fail type-checking. In type-checking parlance, really what we're doing is declaring "optionals."
+> **Note**: `null` is a valid value for all these types for this library. If null is passed in the function, it will not fail type-checking. In type-checking parlance, really what we're doing is declaring "optionals."
 
 Please see below "Advanced" section for how to define instances of classes as required. That is how `date` type can be checked.
 
