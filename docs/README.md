@@ -1,40 +1,63 @@
 # EnforceArguments
 
-A V8 GAS library which enables the ability for the developer to guarantee that functions receive arguments that match the expected types -- including instances of classes.
+Type checking for AppsScripts V8 functions. Build call signatures and check for expected types at runtime. 
 
-![](enforcearguments.gif?raw=true "EnforcedArguments")
+Advanced features, such as checking argument is an instance of a class, also available.
 
 ## Quickstart
 
 Install:
 
 - Library `1K6Ts55BjQFDFTTfnDQsAIH3ZWO7yy9-jUCG4Wayot5UUN6ZmS4vqTxqU`
-- Project ID: `M4wxut0XaxZerFMk3i2mDVfD8R0iiSsw_`, then use like this:
 
 ```js
-function Example1 () {
-    function UsingPosArgs (a, b=10) {
-        Enforce.positional(arguments, {a: '!string', b: 'number'});
-    }
-    UsingPosArgs('required');  // executes without error
-    UsingPosArgs();  // 'TypeError: Required arguments in UsingPosArgs not recieved'
+// Example 1:
+// a function where first param is required, second is optional:
+function UsingPosArgs (a, b=10) {
+    Enforce.positional(arguments, {a: '!string', b: 'number'});
 }
-
-function Example2 () {
-    function UsingNamedArgs ({a, b=10, c=[]}={}) {
-        Enforce.named(arguments, {a: '!string', b: 'number', c: 'array'});
-    }
-    UsingNamedArgs({a: 'required', c: []});  // executes without error:
-    UsingNamedArgs({a: 'required', c: true, f: 'woops'});  // 'TypeError: … Expected array but got string'
-}
+UsingPosArgs('required');  // executes without error, b will be 10
+UsingPosArgs();  // fails with error
 ```
 
-### Also available as an npm module
+That way, we can define that some positional arguments are required.
 
-For those who would are curious about using this package as a module, see last section below.
+```js
+// Example 2:
+// a function that uses objects for parameters, a is required
+function UsingNamedArgs ({a, b=10, c=[]}={}) {
+    Enforce.named(arguments, {a: '!string', b: 'number', c: 'array'});
+}
+UsingNamedArgs({a: 'required', c: []});  // executes without error:
+UsingNamedArgs({a: 'required', c: true});  // fails with error
+```
+
+Some programming languages call this way of defining functions as using "named parameters." In JavaScript it's aligned with destructuring.
+
+```js
+// Example 3:
+// a function whose first parameter is named, but second is an object …
+// … and some keys are required, but others not
+function UsingHybridArgs (id, {sheetId, options={}}={}) {
+    Enforce.hybrid(arguments, {id: '!number', obj: {sheetId: '!number', options: 'object'}});
+}
+UsingHybridArgs(100, {sheetId: 1});   // executes without error
+UsingHybridArgs();  // error, first param id is required
+UsingHybridArgs(100);  // error, sheetId is required
+```
+
+Above, we have both positional and named parameters. Very useful and solved elegantly.
+
 
 ## Why
-The advantages to guaranteeing that your function parameters are somehow validated become more evident with more complicated usage patterns. As a code base gets bigger, you might have to start tracking down bugs in the code, and that process is helped if …
+
+Bugs or unexpected behaviours can result due to JavaScripts leniency when it comes to passing arguments. TypeScript does type checking better, but it's unlikely AppsScripts platform itself will have such typing features. 
+
+You can use TypeScript via node and clasp, which is especially useful for keeping things internally consistent in the project itself. But libraries that are written to be consumed by other AppsScripts projects need to define entry-points, written and consumed by AppsScripts runtime, where type-checking would be compelling.
+
+### Advantages
+
+Software that has runtime type checks means:
 
 * You can assume that required arguments are *always* present
 * You can assume that some particular arguments are a particular type
@@ -46,54 +69,83 @@ This library lets you …
 - Declare arguments to have particular types, and will throw  `TypeError` if it isn’t
 - Enforce arity (number of arguments) and throws `TypeError` on mismatch
 
-## Discussion
-This library …
+### Disdavantages
 
-- Works for either positional arguments or destructured arguments (which we'll call "named arguments")
-- Understands types `string`, `object`, `number`, `boolean`, `array` as enforced types, and can even enforce **classes instances**, such as `Date`
-- Understands type `any` to indicate bypass type checking
-- Treats all `null` values as valid values (type checking is bypassed)
+Functions arguments cannot be typechecked in arrow functions, as it uses the `arguments` keyword. You have to use function declarations.
 
-## Example
-Declaration is done in (preferably) the first line of the function by passing an object where keys are the name of the arguments, and values are strings that indicate the type. Use `!` to indicate it is `required`:
+Of course, using arrow fuctions elsewhere in your project is perfectly fine.
+
+## Declaring Types
+
+With this library, you have to annotate, in your function, the types your arguments are supposed to be. You do that with strings for the following namesake types:
+
+- `"number"`
+- `"string"`
+- `"object"`
+- `"boolean"`
+- `"function"` (for callbacks, but could also be class instances)
+
+To indicate it is required, place a bang in front, i.e. `"!string"`.
+
+> **Note**: If an object can be a string or null, then it is covered by declaring it as string. If null is passed, it will not fail type-checking. In type-checking parlance, really what we're doing is declaring "optionals."
+
+Please see below "Advanced" section for how to define instances of classes as required. That is how `date` type can be checked.
+
+## Recipes
+
+Let's say you're making a function `drink` with two parameters, the first a `string` ("kind" of liquid) and the second is a `number` how fast to drink ("rate"). 
+
+Use `Enforce.positional` because your function's parameters are declared positionally. This is done in (preferably) the first line of the function, where you use JavaScript's `arguments` reserved word, and additionally supplying an object where keys are the name of the arguments, and values are strings that indicate the type.
 
 ### Positional arguments example
 
 ```js
+// declare:
 function drink (liquid, speed=1) {
     Enforce.positional(arguments, {liquid: '!string', speed: 'number'}, 'drink');
 }
-drink('water');  // okay, speed = 1
-drink(124);      // TypeError wrong type
-drink();         // TypeError requires liquid
-drink('coke', 'water'); // TypeError too many
+
+// use:
+drink('water');  // Yes, (speed = 1)
+drink(124);      // No, first param must be a string
+drink();         // No, needs at least one param
+drink('coke', 'water'); // No, second param has to be a number
 ```
 
-> For `Enforce.positional`, the programmer needs to declare the keys in the object in the same order they are defined in the function signature.
+> **Note**: Starting with `'!'` for `liquid` means that it is required. For positional arguments, all of your required parameters should be placed ahead of those optional ones. It is up to the programmer to do that properly in the call signature.
 
-This function receives the `arguments` keyword and an object that defines the expected positional parameters, with their types as strings. These strings should match the `typeof` result on the passed values.
-
-In case it is called incorrectly, a `TypeError` is raised. The string `"drink"` is given to `Enforce.positional` as the last argument as a (optional) comment that will display when the error is thrown.
+There is one thing to be careful of when using `Enforce.positional`. The order of properties declared second paramter (`{liquid, speed}`) has to match the same order in the function siganture (`drink(liquid, speed)`)
 
 ### Destructured arguments example
 
-Works on the same principal above and used in much of the same way.
+You could also make this `drink` function more verbose and more clear, by using destructured parameters. (Other languages might refer to them as "named" parameters.) 
 
 ```js
+// declare
 function drink({liquid, speed=1}={}) {
     Enforce.named(arguments, {liquid: '!string', speed: 'number'}, 'drink');
 }
-drink({liquid: 'water'});  // okay, speed = 1
-drink({speed: 10});        // TypeError missing "liquid"
-drink({nothing: ''});      // TypeError no "nothing" expected
-drink();                   // TypeError missing "liquid"
+drink({liquid: 'water'});  // Yes, speed = 1
+drink({speed: 10});        // No, missing "liquid"
+drink({nothing: ''});      // No, "nothing" is unexpected
+drink({lquid: 'coffee'})   // No, spelling error
+drink();                   // No, liquid is required
 ```
-
-> The `arguments` keyword is used to send the arguments actually passed to `EnforceArguments`, and can't be sensibly be anything else, given the use case
 
 So, basically, you use `Enforce.positional(arguments, ...)` inside functions that utilize positional parameters, and `Enforce.named(arguments, ...)`for those functions using destructured arguments.
 
-## Discussion
+### Hybrid arguments
+
+Let's make a more abstract function, called `verb`, where you define the `kind`, `actor`, and `target`. You also need to pass it an `options` argument. Finally, the first parameter is an `id` number.
+
+This is what the call signature looks like:
+```js
+function verb(id, {kind, actor, target}={}, options={}) {
+
+}
+```
+
+### Example: `importantFunction`
 
 You have a function which is really essential that the arguments passed to it have the right types.
 
@@ -131,29 +183,6 @@ importantFunction({name: 'name', values: [1,2], id: 1234);
 
 Using named arguments that are enforced is more convenient and more readable. The author uses them extensively.
 
-## Motivation
-
-One motivation is that I far prefer named arguments, and need a convenient way to check for instances of classes, too. In addition to that, type checking and remembering what functions take *so much* of the developer's mental energy when building and debugging in vanilla JavaScript. In addition, if you're writing a library, you'll be doing your user a favor by throwing errors early if they don't use the API in the intended manner.
-
-Also, while I *far* prefer using named arguments, GAS libraries expose their functions with positional arguments only. So I used this library to expose library functions, but also lets me write with named arguments:
-
-```js
-const interface =  {id: '!number', name: 'string'};
-
-function internalFunction_({id, name}={}) {
-    Enforce.named(arguments, interface);
-}
-
-/**
- * @param {Number} id
- * @param {String} name
- */
-function exportedFunction(id, name) {
-    Enforce.positional(arguments, interface);
-    internalFunction_(id);
-}
-```
-
 ## Notes & More
 
 ### Performance
@@ -164,7 +193,7 @@ Naturally, there is additional computation involved with the additional overhead
 
 The author does not see any real risk in slowing it down noticeably for end users.
 
-Beware of Default Values
+### Known limitations
 
 Use of this library has a limitation involving use of default values , which has to do with how `arguments` variable works in JavaScript. Consider the following case:
 
@@ -205,50 +234,41 @@ getSpreadsheet({id: null});
 getSpreadsheet();
 ```
 
-You can also use this method with class methods.
+### Class methods
 
-### Applying to class methods
-
-Same technique applies to class methods. This example simplfies the code so that we're not repeating ourselves.
+While the documentation has focused on unbound functions, they can also be used with class methods:
 
 ```js
-const ssConstructorArgs = {id: '!number'};
-
-class Spreadsheet {
-    constructor (id) {
-        Enforce.positional(arguments, ssConstructorArgs);
-        this.id = id;
-    }
-    static fromId ({id}={}) {
-        Enforce.named(arguments, ssConstructorArgs);
-        return new Spreadsheet(id);
+class SomeClass {
+    constructor (id, {value}) {
+        Enforce.hybrid(arguemnts, {id: 'number', obj: {value: '!string'}})
     }
 }
 ```
 
 
-### Declarative vs Decorate
+### Advanced
 
-The following is an alternative, but more verbose, way of working with this library. You need to use it in a different way to get the same results, but there is more typing involved.
+The following is an alternative, but slightly more verbose, way of getting runtime type-checking for functions. It must be used in cases where you can to check for non-native types, such as dates or instances of classes.
 
-The use case where this method shines is if you have a function where one of the arguments needs to be an instance of a class **and** it is required. Using our above method, this is not possible to do, since we indicate required parameters with a `’!’` in front, but when asking for class instances, you pass the actual class itself. No room to prepend a string.
+The use case this method solves is if you have a function where one of the arguments needs to be an instance of a class **and** it is required. Using our above method, this is not possible to do, since we indicate required parameters with a `’!’` in front, but when asking for class instances, you pass the actual class itself. (No room to prepend a string.)
 
-How would you declare a function that requires a `Date` object?
+For example, how would you declare a function that requires a `Date` object?
 
 ```js
-function NeedDate(date=new Date()) {
-    Enforce.positional(arguemnts, {date: Date});  // not indicates as required!
+function FunctionDateRequired(date) {
+    Enforce.positional(arguments, {date: Date});  // not indicated as required!
 }
 ```
 
-So, we use the this alternative method, which I’m calling the “declarative” option:
+So, we use the this alternative method, which is a more “declarative” version of annotating our functions. It involves creating an "Enforce" object manually, and then indicating it's required with it.
 
 ```js
 // E for "enforce"; we'll use this object to enforce arguments in below function
 const E = Enforce.create({date: Date, info: '!string'});
 
 function getSomething(request=E.req, info) {  // E.req makes it required
-  E.enforcePositional(arguments);
+    E.enforcePositional(arguments);
     ...
 }
 
@@ -259,50 +279,18 @@ const d = new Date();
 getSomething(d, 'some string (also required)');
 ```
 
-Notice that `E.req` makes the argument required; leave it out if the parameter is not required. You can use the usual `!` syntax with `info` for example, which is demonstrated below:
+Notice that `E.req` makes the argument required; leave it out if the parameter is not required. You could also use this method to define `info` as required, too!
 
 ```js
-const D = Enforce.create({request: Request, info: '!string'});
+const D = Enforce.create({request: Request, info: 'string'});
 
 function getJson(request=D.req, info=D.req) {
     D.enforcePositional(arguments);
 }
 ```
 
-> Requiring an argument as in `info` in the example directly above is not recommended since you'll have to keep the declaration consistent with `"!string"` declaration anyway.
+The way this works is actually quite interesting. Default parameters such as `D.req` is only evaluated if it is not passed. You can even define the default as the result of a function call!
 
-##
+The library defines the `.req` as a "get" property, which means that when it's evaluated it calls the function, which is possible to do as described above. Since it is only called when not present, the function simply raises a type error.
 
-
-### Use it as an AppsScripts module
-
-This is [also available](https://www.npmjs.com/package/@classroomtechtools/enforce_arguments) as an npm module. Using [this utility](https://github.com/classroomtechtools/appscripts-modules-ft-svelte), you can install via
-
-```bash
-npm install @classroomtechtools/enforce_arguments
-```
-
-First you have to write a module:
-
-```js
-// ./src/modules/enforce.js
-import {Enforce} from '@classroomtechtools/enforce_arguments';
-export {Enforce};
-```
-
-Then use as a module like this:
-
-```js
-function UsingPosArgs (a, b=10) {
-    const {Enforce} = Import;
-    Enforce.positional(arguments, {a: '!string', b: 'number'}, 'UsingPosArgs');
-}
-
-function UsingNamedArgs ({a, b=10, c, d={}, e=new Date(), f=[]}={}) {
-    const {Enforce} = Import;
-    Enforce.named(arguments, {a: '!string', b: 'number', c: '!boolean', d: 'object', e: Date, f: 'array'}, 'UsingNamedArgs');
-}
-```
-
-Or, you can navigate [to the source Bundle file](https://github.com/classroomtechtools/EnforceArguments/blob/master/project/Bundle.js) and include it in your own project (via copy and paste) if that's what floats your boat.
-
+> **Note**: Because of the decoupling involved above, the TypeError you receive is not as helpful as using the "normal" method of using this library.

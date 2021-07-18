@@ -52,7 +52,7 @@ test('enforce functions', t => {
         Enforce.named(arguments, {a: '!function'});
         return a();
     }
-    const result = Tester({a: ()=> 1});
+    const result = Tester({a: () => 1});
     t.true(result === 1);
 });
 
