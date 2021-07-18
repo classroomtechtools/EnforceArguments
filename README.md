@@ -51,6 +51,9 @@ UsingHybridArgs(100);  // error, sheetId is required
 
 Above, we have both positional and named parameters. Very useful and solved elegantly.
 
+> **Note:** Eagle-eyed readers will notice that `obj` is a key that appears in the `Enforce.hybrid` call, but does not in the function signature itself. It is used as a kind of placeholder key.
+
+> Any name will due for such a placeholder; the only issue is that it cannot share the same name of other parameters.
 
 ## Why
 
@@ -212,7 +215,7 @@ Type-checking will of course introduce some performance degradation, but tests i
 
 Some simple performance tests conducted only indicate that even with 200,000 calls with the slowest type-checking (hybrid), it added 100 milliseconds to the total execution time.
 
-The library itself has a file `Performance.gs` for more inforamtion.
+The library itself has a file `Performance.gs` for more information.
 
 ### Known limitations
 
@@ -262,7 +265,7 @@ While the documentation has focused on unbound functions, they can also be used 
 ```js
 class SomeClass {
     constructor (id, {value}) {
-        Enforce.hybrid(arguemnts, {id: 'number', obj: {value: '!string'}})
+        Enforce.hybrid(arguments, {id: 'number', obj: {value: '!string'}})
     }
 }
 ```
@@ -348,3 +351,11 @@ Output:
   ✔ IntentionalBehaviour › Default types that are incompatible are not type-checked
 ```
 
+## Documenation
+
+The documentation is generated via docsify:
+
+```
+docsify init ./docs
+docsify serve ./docs
+```
